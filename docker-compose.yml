@@ -6,6 +6,9 @@ services:
     image: 'redis:latest'
   nginx:
     restart: always
+    depends_on:
+      - api
+      - client
     build:
       dockerfile: Dockerfile.dev
       context: ./nginx
@@ -14,13 +17,29 @@ services:
   api:
     build:
       dockerfile: Dockerfile.dev
+
+      # MAGNIFICA SEPARACION DE MICROSERVICIOS!
       context: ./server
+    depends_on:
+      - postgres
     volumes:
+      # Vinculado a nada, para que no intente crearlo adentro
       - /app/node_modules
+
+      # Muy buena jugada. Copiará en el Dockerfile, para tener algo de entrada, pero luego aquí lo deja conectado
       - ./server:/app
+
     environment:
+      # https://www.udemy.com/course/docker-and-kubernetes-the-complete-guide/learn/lecture/11437290#overview
+      # Clase muy útil. Explica dos cosas:
+      # Una, que el nombre de variable sola, hace que docker-compose traiga
+      # el valor desde el SO, algo así
+      # - REDIS_HOST
+      # Lo otro, que no hace falta especficar la ip de donde corre el contenedor
+      # con redis. Solo nombrar el host con en el nombre del service, "redis", en este caso.
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      # De acuerdo al Dockerhub, estos son los valores por defecto de la imagen que está arriba
       - PGUSER=postgres
       - PGHOST=postgres
       - PGDATABASE=postgres
@@ -29,8 +48,12 @@ services:
   client:
     build:
       dockerfile: Dockerfile.dev
+
+      # MAGNIFICA SEPARACION DE MICROSERVICIOS!
       context: ./client
+
     volumes:
+      # Vinculado a nada, para que no intente crearlo adentro
       - /app/node_modules
       - ./client:/app
   worker:
@@ -39,7 +62,13 @@ services:
       - REDIS_PORT=6379
     build:
       dockerfile: Dockerfile.dev
+
+      # restart: always # no ponerlo. Está bien si se cae, para eso lo gestionamos con kubernetes
+
+      # MAGNIFICA SEPARACION DE MICROSERVICIOS!
       context: ./worker
+
     volumes:
+      # Vinculado a nada, para que no intente crearlo adentro
       - /app/node_modules
       - ./worker:/app
