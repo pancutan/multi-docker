@@ -1,35 +1,41 @@
 sudo: required
+language: generic
+
 services:
   - docker
 
 before_install:
-  - docker build -t stephengrider/react-test -f ./client/Dockerfile.dev ./client
+  - docker build -t pancutan/react-test -f ./client/Dockerfile.dev ./client
 
-script:
-  - docker run stephengrider/react-test npm test -- --coverage
+script: # Solo tests o cosas que devuelvan enteros al terminar
+  # Para que el test no se quede loopenado. Que termine y arroje 0 u otra cosa
+  # - docker run pancutan/react-test npm test -- --coverage
+  docker run -e CI=true USERNAME/react-test npm test
 
-after_success:
-  - docker build -t stephengrider/multi-client ./client
-  - docker build -t stephengrider/multi-nginx ./nginx
-  - docker build -t stephengrider/multi-server ./server
-  - docker build -t stephengrider/multi-worker ./worker
-  # Log in to the docker CLI
+after_succes:
+  - docker build -t pancutan/multi-client ./client
+  - docker build -t pancutan/multi-nginx  ./nginx
+  - docker build -t pancutan/multi-server ./server
+  - docker build -t pancutan/multi-worker ./worker
+
+  # Subir imagenes a un registry: Dockerhub - para el docker login, las variables de entorno, y
+  # para que no se vean publicamente en este repo expuesto en Github, las dejo
+  # seteadas en https://travis-ci.org/pancutan/multi-docker/settings
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
-  # Take those images and push them to docker hub
-  - docker push stephengrider/multi-client
-  - docker push stephengrider/multi-nginx
-  - docker push stephengrider/multi-server
-  - docker push stephengrider/multi-worker
+  - docker push pancutan/multi-client
+  - docker push pancutan/multi-nginx
+  - docker push pancutan/multi-server
+  - docker push pancutan/multi-worker
 
-deploy:
-  provider: elasticbeanstalk
-  region: us-west-1
-  app: multi-docker
-  env: MultiDocker-env
-  bucket_name: elasticbeanstalk-us-west-1-306476627547
-  bucket_path: docker-multi
-  on:
-    branch: master
-  access_key_id: $AWS_ACCESS_KEY
-  secret_access_key:
-    secure: $AWS_SECRET_KEY
+# deploy:
+#   provider: elasticbeanstalk
+#   region: us-west-1
+#   app: multi-docker
+#   env: MultiDocker-env
+#   bucket_name: elasticbeanstalk-us-west-1-306476627547
+#   bucket_path: docker-multi
+#   on:
+#     branch: master
+#   access_key_id: $AWS_ACCESS_KEY
+#   secret_access_key:
+#     secure: $AWS_SECRET_KEY
