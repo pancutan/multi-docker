@@ -10,7 +10,7 @@ before_install:
 script: # Solo tests o cosas que devuelvan enteros al terminar
   # Para que el test no se quede loopenado. Que termine y arroje 0 u otra cosa
   # - docker run pancutan/react-test npm test -- --coverage
-  docker run -e CI=true USERNAME/react-test npm test
+  docker run -e CI=true pancutan/react-test npm test
 
 after_succes:
   - docker build -t pancutan/multi-client ./client
