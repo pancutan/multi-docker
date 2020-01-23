@@ -27,15 +27,20 @@ after_succes:
   - docker push pancutan/multi-server
   - docker push pancutan/multi-worker
 
-# deploy:
-#   provider: elasticbeanstalk
-#   region: us-west-1
-#   app: multi-docker
-#   env: MultiDocker-env
-#   bucket_name: elasticbeanstalk-us-west-1-306476627547
-#   bucket_path: docker-multi
-#   on:
-#     branch: master
-#   access_key_id: $AWS_ACCESS_KEY
-#   secret_access_key:
-#     secure: $AWS_SECRET_KEY
+# Recordar crear un usuario en el IAM, obtener sus lalves allí
+# y setearlas en la nube de travis, en https://travis-ci.org/pancutan/multi-docker/settings
+
+# https://www.udemy.com/course/docker-and-kubernetes-the-complete-guide/learn/lecture/11437392#bookmarks
+deploy:
+    # edge: true # Si aparece missing bucket_name
+    provider: elasticbeanstalk
+    region: us-west-1
+    app: multi-docker
+    env: MultiDocker-env
+    bucket_name: elasticbeanstalk-us-west-2-599651702009
+    bucket_path: docker-multi
+    on:
+      branch: master
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key:
+      secure: $AWS_SECRET_KEY
