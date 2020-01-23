@@ -34,7 +34,7 @@ after_succes:
 deploy:
     # edge: true # Si aparece missing bucket_name
     provider: elasticbeanstalk
-    region: us-west-1
+    region: us-west-2
     app: multi-docker
     env: MultiDocker-env
     bucket_name: elasticbeanstalk-us-west-2-599651702009
